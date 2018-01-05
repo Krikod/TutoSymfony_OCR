@@ -1,24 +1,61 @@
-# To get started with security, check out the documentation:
-# http://symfony.com/doc/current/security.html
+# doc -> http://symfony.com/doc/current/security.html
+
+# nom choisi par le bundle SecurityBundle pour sa config. On fait ici la config du bundle.
 security:
+    # encoder: objet qui encode les mots de passe des users. On décide ici comment ils seront encodés.
+    # L'encodeur plaintext laisse les mdp en clair (après -> sha512)
+    encoders:
+        Symfony\Component\Security\Core\User\User: plaintext
+    # définit l'accès ou non à une ressource pour un user (role) - controleur vérifie.
+    # hiérarchie car ROLE_USER compris dans ROLE_ADMIN (nom doit commencer par ROLE)
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
+        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
 
     # http://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
-    providers:
+
+    providers: # provider: fournisseur d'users. Firewall récupère auprès d'eux les users et les identifient
         in_memory:
-            memory: ~
+            memory: # Un seul fournisseur ici: in_memory -> fournisseur qui liste les users dans ce fichier, user et admin,
+                    # QUE POUR DEV (sans bdd) !!! LE SUPPRIMER ENSUITE !!!
+                users:
+                    user: { password: userpass, roles: [ 'ROLE_USER' ] }
+                    admin: { password: adminpass, roles: [ 'ROLE_ADMIN' ] }
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
-        dev:
+        # 1 seul parefeu par URL ! Et le premier est dominant. /css/... pas protégées !!
+        # users identifiés en tant que users anonymes sur le site. ROLES distingueront anonymes/membres
+        dev: # Ici parefeu dev désactive sécu sur certaines URL.
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        main:
-            anonymous: ~
-            # activate different ways to authenticate
+        main: # Ajout parefeu main (ou autre identifiant unique)
+            pattern: ^/ # tout le site derrière (=protégé par) le parefeu main
+            anonymous: true # accepte tous les users anonymes; ressources seront protégées par les rôles
+            form_login: # authentification par form html
+                login_path: login # route du form de connexion (controleur à exéc.)
+                check_path: login_check # route de validation du form (avec id et mdp) + gestion du form
+                                        # par Sf (pas de controleur à exéc.); si succès, authentification !
+                                        # echec => renvoie vers le form
+            logout: # car par défaut impossible de se déconnecter une fois authentifié
+                path: logout # nom route o`u aller pour être déconnecté
+                target: login # route de redirection après déconnection
 
+
+
+            # activate different ways to authenticate
             # http://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
             #http_basic: ~
-
             # http://symfony.com/doc/current/cookbook/security/form_login_setup.html
             #form_login: ~
+
+    #
+    access_control:
+#        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
+    # façons d'utiliser les contrôles d'accès:
+    #   - soit config ici => règles sur URL: on sécurise URLs en 1 ligne, ex. commençant par /admin.
+    #   - soit dans contrôleurs.
+    # Complémentaires. Pouvons appliquer règles différentes selon des paramètres.
+
+# Après security.yml, définir les routes : routing.yml !!!!!!!!!!

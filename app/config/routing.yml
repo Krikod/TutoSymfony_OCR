@@ -3,3 +3,17 @@
 oc_platform:
     resource: "@OCPlatformBundle/Resources/config/routing.yml"
     prefix:   /platform
+
+# routes pour l'authentification
+login:
+    path: /login
+    defaults:
+        _controller: OCUserBundle:Security:login
+
+# pas de controleur pour routes check et logout. Sf attrape requêtes pour ces routes
+# grâce au gestionnaire d'événements
+login_check:
+    path: /login_check
+
+logout:
+    path: /logout

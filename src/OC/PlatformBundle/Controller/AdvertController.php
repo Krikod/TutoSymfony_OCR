@@ -29,12 +29,12 @@ class AdvertController extends Controller
 
         // On ajoute les champs de l'entité que l'on veut à notre formulaire
         $formBuilder
-            ->add('date'),      DateType::class)
-            ->add('title'),     TextType::class)
-            ->add('content'),   TextareaType::class)
-            ->add('author'),    TextType::class)
-            ->add('published'), CheckboxType::class)
-            ->add('save'),      SubmitType::class)
+            ->add('date')
+            ->add('title')
+            ->add('content')
+            ->add('author')
+            ->add('published')
+            ->add('save')
         ;
         // Pour l'instant, pas de candidatures, catégories, etc., on les gèrera plus tard
 
@@ -87,7 +87,7 @@ class AdvertController extends Controller
         // Puis on passera l'annonce à la vue pour qu'elle puisse l'afficher
         //return new Response("Affichage de l'annonce d'id: " .$id);
         // Ici, on récupérera l'annonce correspondante à l'id $id
-        return $this->render('OCPlatformBundle:Advert:view.html.twig', array(
+        return $this->render('OCPlatformBundle:Advert:index.html.twig', array(
             'id' => $id
         ));
     }
@@ -99,7 +99,7 @@ class AdvertController extends Controller
         // Même mécanisme que pour l'ajout
         if ($request->isMethod('POST'))
         {
-            $request->getSession()->getFlashBag()->add('notice', 'Annonce bien modifiée.');
+//            $request->getSession()->getFlashBag()->add('notice', 'Annonce bien modifiée.');
             return $this->redirectToRoute('oc_platform_view', array('id' => 5));
         }
         return $this->render('OCPlatformBundle:Advert:edit.html.twig');
